@@ -1,0 +1,5 @@
+#!/bin/bash
+cd $HOME
+#mkdir "backup_directory"
+files=$(find ~ -name "*.txt")
+cp $files "backup_directory"
