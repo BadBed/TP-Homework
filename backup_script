@@ -1,13 +1,14 @@
 #!/bin/bash
 
 backup_directory="backup_directory"
-types="cpp"
-archive="backup.tar"
+path=$1
+archive=$2
+types=$3
 
 cd $HOME
 mkdir $backup_directory
-files=$(find ~ -name "*.cpp")
-cp $files "backup_directory"
+files=$(find $path -name "*.cpp")
+cp $files $backup_directory
 tar -cvzf $archive $backup_directory
 
 rm -r $backup_directory
