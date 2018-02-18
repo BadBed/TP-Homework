@@ -6,10 +6,11 @@ archive=$2
 types=$3
 
 cd $HOME
-mkdir $backup_directory
+mkdir $backup_directory 2>>ftrash
 files=$(find $path -name "*.cpp")
-cp $files $backup_directory
-tar -cvzf $archive $backup_directory
+vtrash=$(cp $files $backup_directory)
+vtrash=$(tar -cvzf $archive $backup_directory)
 
+rm ftrash
 rm -r $backup_directory
 echo "Done"
