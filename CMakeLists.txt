@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+include_directories(“C”)
+include_directories(“B”)
+include_directories(“A”)
+add_executable(main C/main.cpp)
