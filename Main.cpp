@@ -2,203 +2,176 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
+#include "Main.h"
 
 using std::cout;
 using std::cin;
 using std::vector;
 using std::string;
 
-enum CToping{Tomato = 0, Cucumber, Chicken, Cheese, Sausage, Pineapple};
-enum CSause{Chile = 0, TomatoSause, Teriyaki};
-
 const vector<string> PIZZA_NAMES = {"Margarita", "Peperoni", "Hawaiian", "4Cheeses"};
 const vector<string> TOPING_NAMES = {"Tomato", "Cucumber", "Chicken", "Cheese", "Sausage", "Pineapple"};
 const vector<string> SAUSE_NAMES = {"Chile", "TomatoSause", "Teriyaki"};
-
-struct CPizza {
-public:
-	vector<CToping> toping;
-	vector<CSause> sause;
-};
 
 //#################################################################################
 
 class IBuilder;
 class IFactory;
-class CInterface;
+class CUserInterface;
 
 //#################################################################################
 
-void PreparePizza(CPizza pizza_) {
-	cout << "Prepare dough\n";
-
-	for (int i = 0; i < pizza_.sause.size(); ++i) {
-		cout << "Add " << SAUSE_NAMES[pizza_.sause[i]] << "\n";
-	}
-
-	for (int i = 0; i < pizza_.toping.size(); ++i) {
-		cout << "Add " << TOPING_NAMES[pizza_.toping[i]] << "\n";
-	}
-
-	cout << "Send pizza\n";
+void CPizza::Fry() {
+	cout << "Fry pizza\n";
+	_is_prepared = true;
 }
 
-class CInterface {
-public:
-	bool AskIsStandart() {
-		cout << "1: choose standart pizza\n";
-		cout << "2: create your own pizza\n";
-		int x;
-		cin >> x;
-		return x == 1;
-	}
+void CPizza::AddSause(CSause sause) {
+	cout << "Add " << SAUSE_NAMES[sause] << "\n";
+	sause_.push_back(sause);
+}
 
-	bool AskMoreSause() {
-		cout << "Add sause? (y/n)\n";
-		char c;
-		cin >> c;
-		return c == 'y';
-	}
-	bool AskMoreToping() {
-		cout << "Add toping? (y/n)\n";
-		char c;
-		cin >> c;
-		return c == 'y';
-	}
+void CPizza::AddToping(CToping toping) {
+	cout << "Add " << TOPING_NAMES[toping] << "\n";
+	toping_.push_back(toping);
+}
 
-	CSause GetSause() {
-		cout << "Choose your sause:\n";
-		for (size_t i = 0; i < SAUSE_NAMES.size(); ++i) {
-			cout << i + 1 << " " << SAUSE_NAMES[i] << "\n";
-		}
-		int x;
-		cin >> x;
-		return static_cast<CSause>(x - 1);
+bool CUserInterface::AskIsStandart() {
+	cout << "1: choose standart pizza\n";
+	cout << "2: create your own pizza\n";
+	int x;
+	cin >> x;
+	return x == 1;
+}
+
+bool CUserInterface::AskMoreSause() {
+	cout << "Add sause? (y/n)\n";
+	char c;
+	cin >> c;
+	return c == 'y';
+}
+
+bool CUserInterface::AskMoreToping() {
+	cout << "Add toping? (y/n)\n";
+	char c;
+	cin >> c;
+	return c == 'y';
+}
+
+CSause CUserInterface::GetSause() {
+	cout << "Choose your sause:\n";
+	for (size_t i = 0; i < SAUSE_NAMES.size(); ++i) {
+		cout << i + 1 << " " << SAUSE_NAMES[i] << "\n";
 	}
-	CToping GetToping() {
-		cout << "Choose your toping:\n";
-		for (size_t i = 0; i < TOPING_NAMES.size(); ++i) {
-			cout << i + 1 << " " << TOPING_NAMES[i] << "\n";
-		}
-		int x;
-		cin >> x;
-		return static_cast<CToping>(x - 1);
+	int x;
+	cin >> x;
+	return static_cast<CSause>(x - 1);
+}
+
+CToping CUserInterface::GetToping() {
+	cout << "Choose your toping:\n";
+	for (size_t i = 0; i < TOPING_NAMES.size(); ++i) {
+		cout << i + 1 << " " << TOPING_NAMES[i] << "\n";
 	}
-	string GetPizzaName() {
-		cout << "Choose your pizza:\n";
-		for (size_t i = 0; i < PIZZA_NAMES.size(); ++i) {
-			cout << i + 1 << " " << PIZZA_NAMES[i] << "\n";
-		}
-		int x;
-		cin >> x;
-		return PIZZA_NAMES[x - 1];
+	int x;
+	cin >> x;
+	return static_cast<CToping>(x - 1);
+}
+
+string CUserInterface::GetPizzaName() {
+	cout << "Choose your pizza:\n";
+	for (size_t i = 0; i < PIZZA_NAMES.size(); ++i) {
+		cout << i + 1 << " " << PIZZA_NAMES[i] << "\n";
 	}
-};
+	int x;
+	cin >> x;
+	return PIZZA_NAMES[x - 1];
+}
+
 
 //##############################################################################
 
+IBuilder::~IBuilder() {
 
-class IBuilder {
-protected:
-	CPizza pizza_;
-public:
-	virtual void BuildToping() = 0;
-	virtual void BuildSause() = 0;
-	CPizza GetPizza() { return pizza_; }
-};
+}
 
-class CUserBuilder : public IBuilder {
-public:
-	CInterface* inter;
+CPizza IBuilder::GetPizza() {
+	return pizza_;
+}
 
-	void BuildToping() {
-		while (inter->AskMoreToping()) {
-			pizza_.toping.push_back(inter->GetToping());
-		}
+void CUserBuilder::BuildToping() {
+	while (inter->AskMoreToping()) {
+		pizza_.AddToping(inter->GetToping());
 	}
+}
 
-	void BuildSause() {
-		while (inter->AskMoreSause()) {
-			pizza_.sause.push_back(inter->GetSause());
-		}
+void CUserBuilder::BuildSause() {
+	while (inter->AskMoreSause()) {
+		pizza_.AddSause(inter->GetSause());
 	}
-};
+}
 
-class CDirector {
-public:
-	CPizza CreatePizza(IBuilder* builder) {
-		builder->BuildToping();
-		builder->BuildSause();
-		return builder->GetPizza();
-	}
-};
+void CUserBuilder::BuildFrying() {
+	pizza_.Fry();
+}
+
+CPizza CDirector::CreatePizza(IBuilder* builder) {
+	builder->BuildToping();
+	builder->BuildSause();
+	builder->BuildFrying();
+	return builder->GetPizza();
+}
 
 //###################################################################################
 
-class IFactory {
-public:
-	virtual vector<CSause> CreateSause() = 0;
-	virtual vector<CToping> CreateToping() = 0;
-};
+IFactory::~IFactory() {}
 
-class CFactoryMargarita : public IFactory {
-public:
-	vector<CSause> CreateSause() {
-		vector<CSause> vec = {TomatoSause};
-		return vec;
-	}
+void CFactoryMargarita::CreateSause(CPizza& pizza) {
+	pizza.AddSause(TomatoSause);
+}
 
-	vector<CToping> CreateToping() {
-		vector<CToping> vec = {Tomato, Cheese};
-		return vec;
-	}
-};
+void CFactoryMargarita::CreateToping(CPizza& pizza) {
+	pizza.AddToping(Cheese);
+	pizza.AddToping(Tomato);
+}
 
-class CFactory4Cheeses : public IFactory {
-public:
-	vector<CSause> CreateSause() {
-		vector<CSause> vec = {TomatoSause};
-		return vec;
-	}
+void CFactoryPeperoni::CreateSause(CPizza& pizza) {
+	pizza.AddSause(Chile);
+}
 
-	vector<CToping> CreateToping() {
-		vector<CToping> vec = {Cheese, Cheese, Cheese, Cheese};
-		return vec;
-	}
-};
+void CFactoryPeperoni::CreateToping(CPizza& pizza) {
+	pizza.AddToping(Sausage);
+	pizza.AddToping(Tomato);
+}
 
-class CFactoryPeperoni : public IFactory {
-public:
-	vector<CSause> CreateSause() {
-		vector<CSause> vec = {Chile};
-		return vec;
-	}
+void CFactoryHawaiian::CreateSause(CPizza& pizza) {
+	pizza.AddSause(TomatoSause);
+}
 
-	vector<CToping> CreateToping() {
-		vector<CToping> vec = {Tomato, Sausage, Cheese};
-		return vec;
-	}
-};
+void CFactoryHawaiian::CreateToping(CPizza& pizza) {
+	pizza.AddToping(Chicken);
+	pizza.AddToping(Pineapple);
+	pizza.AddToping(Cheese);
+}
 
-class CFactoryHawaiian : public IFactory {
-public:
-	vector<CSause> CreateSause() {
-		vector<CSause> vec = {TomatoSause};
-		return vec;
-	}
+void CFactory4Cheeses::CreateSause(CPizza& pizza) {
+	pizza.AddSause(TomatoSause);
+}
 
-	vector<CToping> CreateToping() {
-		vector<CToping> vec = {Chicken, Pineapple, Cheese};
-		return vec;
-	}
-};
+void CFactory4Cheeses::CreateToping(CPizza& pizza) {
+	pizza.AddToping(Cheese);
+	pizza.AddToping(Cheese);
+	pizza.AddToping(Cheese);
+	pizza.AddToping(Cheese);
+}
 
 class CMaker {
 public:
 	CPizza MakePizza(IFactory* factory) {
 		CPizza pizza;
-		pizza.sause = factory->CreateSause();
-		pizza.toping = factory->CreateToping();
+		factory->CreateSause(pizza);
+		factory->CreateToping(pizza);
+		pizza.Fry();
 		return pizza;
 	}
 };
@@ -206,7 +179,7 @@ public:
 //###################################################################################
 
 int main() {
-	CInterface interface;
+	CUserInterface interface;
 	if (interface.AskIsStandart()) {
 		IFactory* factory = nullptr;
 		string pizza_name = interface.GetPizzaName();
@@ -228,14 +201,14 @@ int main() {
 
 		CMaker maker;
 		CPizza pizza = maker.MakePizza(factory);
-		PreparePizza(pizza);
+		delete factory;
 	}
 	else {
 		CUserBuilder* builder = new CUserBuilder();
 		builder->inter = &interface;
 		CDirector director;
 		CPizza pizza = director.CreatePizza(builder);
-		PreparePizza(pizza);
+		delete builder;
 	}
 
 	system("pause");
