@@ -21,20 +21,40 @@ class CUserInterface;
 
 //#################################################################################
 
+CPizza::CPizza() {
+	is_prepared_ = false;
+}
+
 void CPizza::Fry() {
 	cout << "Fry pizza\n";
-	_is_prepared = true;
+	is_prepared_ = true;
 }
 
 void CPizza::AddSause(CSause sause) {
+	assert(!is_prepared_);
 	cout << "Add " << SAUSE_NAMES[sause] << "\n";
 	sause_.push_back(sause);
 }
 
 void CPizza::AddToping(CToping toping) {
+	assert(!is_prepared_);
 	cout << "Add " << TOPING_NAMES[toping] << "\n";
 	toping_.push_back(toping);
 }
+
+vector<CToping> CPizza::GetToping() {
+	return toping_;
+}
+
+vector<CSause> CPizza::GetSause() {
+	return sause_;
+}
+
+bool CPizza::IsPrepared() {
+	return is_prepared_;
+}
+
+//#################################################################################
 
 bool CUserInterface::AskIsStandart() {
 	cout << "1: choose standart pizza\n";
@@ -165,20 +185,18 @@ void CFactory4Cheeses::CreateToping(CPizza& pizza) {
 	pizza.AddToping(Cheese);
 }
 
-class CMaker {
-public:
-	CPizza MakePizza(IFactory* factory) {
-		CPizza pizza;
-		factory->CreateSause(pizza);
-		factory->CreateToping(pizza);
-		pizza.Fry();
-		return pizza;
-	}
-};
+CPizza CMaker::MakePizza(IFactory* factory) {
+	CPizza pizza;
+	factory->CreateSause(pizza);
+	factory->CreateToping(pizza);
+	pizza.Fry();
+	return pizza;
+}
+
 
 //###################################################################################
 
-int main() {
+void run() {
 	CUserInterface interface;
 	if (interface.AskIsStandart()) {
 		IFactory* factory = nullptr;
@@ -204,6 +222,7 @@ int main() {
 		delete factory;
 	}
 	else {
+		//CUserBuilder* builder = new CUserBuilder();
 		CUserBuilder* builder = new CUserBuilder();
 		builder->inter = &interface;
 		CDirector director;
@@ -211,8 +230,7 @@ int main() {
 		delete builder;
 	}
 
-	system("pause");
+	//system("pause");
 }
 
 //###################################################################################
-

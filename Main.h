@@ -16,11 +16,17 @@ class CPizza {
 private:
 	vector<CToping> toping_;
 	vector<CSause> sause_;
-	bool _is_prepared;
+	bool is_prepared_;
 public:
+	CPizza();
+
 	void AddSause(CSause);
 	void AddToping(CToping);
 	void Fry();
+
+	vector<CToping> GetToping();
+	vector<CSause> GetSause();
+	bool IsPrepared();
 };
 
 class CUserInterface {
@@ -71,21 +77,32 @@ public:
 };
 
 class CFactoryMargarita : public IFactory {
+public:
 	virtual void CreateSause(CPizza&);
 	virtual void CreateToping(CPizza&);
 };
 
 class CFactoryPeperoni : public IFactory {
+public:
 	virtual void CreateSause(CPizza&);
 	virtual void CreateToping(CPizza&);
 };
 
 class CFactoryHawaiian : public IFactory {
+public:
 	virtual void CreateSause(CPizza&);
 	virtual void CreateToping(CPizza&);
 };
 
 class CFactory4Cheeses : public IFactory {
+public:
 	virtual void CreateSause(CPizza&);
 	virtual void CreateToping(CPizza&);
 };
+
+class CMaker {
+public:
+	CPizza MakePizza(IFactory* factory);
+};
+
+void run();
